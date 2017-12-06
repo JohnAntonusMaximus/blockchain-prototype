@@ -12,6 +12,6 @@ func (bc *Blockchain) AddBlock(data string) {
 	bc.blocks = append(bc.blocks, newBlock)
 }
 
-func NewBlockchain() *Blockchain {
+func NewBlockChain() *Blockchain {
 	return &Blockchain{[]*Block{NewGenesisBlock()}}
 }
