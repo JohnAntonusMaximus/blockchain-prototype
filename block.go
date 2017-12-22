@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bytes"
+	"encoding/gob"
+	"log"
 	"time"
 )
 
@@ -13,17 +16,51 @@ type Block struct {
 	Nonce         int
 }
 
-// NewBlock creates and returns a block
+// Serialize serializes the block
+func (b *Block) Serialize() []byte {
+	var result bytes.Buffer
+	encoder := gob.NewEncoder(&result)
+
+	err := encoder.Encode(b)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return result.Bytes()
+}
+
+// NewBlock creates and returns Block
 func NewBlock(data string, prevBlockHash []byte) *Block {
-	block := &Block{time.Now().Unix(), []byte(data), prevBlockHash, []byte{}, 0}
+	block := &Block{
+		Timestamp:     time.Now().Unix(),
+		Data:          []byte(data),
+		PrevBlockHash: prevBlockHash,
+		Hash:          []byte{},
+		Nonce:         0,
+	}
 	pow := NewProofOfWork(block)
 	nonce, hash := pow.Run()
+
 	block.Hash = hash[:]
 	block.Nonce = nonce
+
 	return block
 }
 
-// NewGenesisBlock creates the first block in the chain
+// NewGenesisBlock creates and returns genesis Block
 func NewGenesisBlock() *Block {
 	return NewBlock("Genesis Block", []byte{})
+}
+
+// DeserializeBlock deserializes a block
+func DeserializeBlock(d []byte) *Block {
+	var block Block
+
+	decoder := gob.NewDecoder(bytes.NewReader(d))
+	err := decoder.Decode(&block)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return &block
 }
