@@ -1,6 +1,10 @@
 package main
 
-import "bytes"
+import (
+	"bytes"
+	"encoding/gob"
+	"log"
+)
 
 // TxOutput represents a transaction output
 type TxOutput struct {
@@ -26,4 +30,35 @@ func NewTxOutput(value int, address string) *TxOutput {
 	txo.Lock([]byte(address))
 
 	return txo
+}
+
+// TxOutputs collects TxOutput
+type TxOutputs struct {
+	Outputs []TxOutput
+}
+
+// Serialize serializes TxOutputs
+func (outs TxOutputs) Serialize() []byte {
+	var buff bytes.Buffer
+
+	encoder := gob.NewEncoder(&buff)
+	err := encoder.Encode(outs)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return buff.Bytes()
+}
+
+// DeserializeOutputs deserializes TxOutputs
+func DeserializeOutputs(data []byte) TxOutputs {
+	var outputs TxOutputs
+
+	decoder := gob.NewDecoder(bytes.NewReader(data))
+	err := decoder.Decode(&outputs)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return outputs
 }

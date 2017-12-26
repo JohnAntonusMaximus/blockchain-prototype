@@ -21,7 +21,7 @@ type Wallet struct {
 	PublicKey  []byte
 }
 
-// New Wallet creates and returns the address of a new wallet
+// NewWallet creates and returns the address of a new wallet
 func NewWallet() *Wallet {
 	private, public := newKeyPair()
 	wallet := Wallet{private, public}
